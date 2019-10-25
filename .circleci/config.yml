@@ -1,0 +1,63 @@
+defaults: &defaults
+  working_directory: &working_directory
+    ~/unity_tutorial_2019
+
+deps-images: &deps-images
+  docker:
+    - image: 'circleci/ruby:2.6.0-node-browsers'
+      environment:
+        TZ: Asia/Tokyo
+    
+
+checkout_cache_key: &checkout_cache_key v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+restore_checkout_cache: &restore_checkout_cache
+  restore_cache:
+    key: *checkout_cache_key
+
+tag-setting: &tag-setting
+  run:
+    name: Release Tag
+    command: |
+      # version.rbが手動修正されている場合
+      # VERSION=$(grep -e V lib/palette/elastic_search/version.rb | tr -d 'VERSION= "')
+      # NEW_TAG=v${VERSION}
+      # echo $NEW_TAG
+      # 環境変数として設定する必要あり
+      NEW_TAG=v0.1.0
+      git config user.name $GIT_USER_NAME
+      git config user.email $GIT_USER_EMAIL
+      git tag $NEW_TAG
+      git push origin $NEW_TAG
+
+setting-build: &setting-build
+  steps:
+    - checkout
+    - save_cache:
+        key: *checkout_cache_key
+        paths: *working_directory
+
+release-tag: &release-tag
+  steps:
+    - attach_workspace:
+        at: .
+    - checkout
+    - *restore_checkout_cache
+    - *tag-setting
+
+version: 2
+jobs:
+  build-setting:
+    <<: [*defaults, *deps-images]
+    <<: *setting-build
+
+  tag-release:
+    <<: [*defaults, *deps-images]
+    <<: *release-tag
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build-setting
+      - tag-release:
+            - build-setting
