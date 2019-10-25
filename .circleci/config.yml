@@ -17,13 +17,22 @@ tag-setting: &tag-setting
     command: |
       git config user.name $GIT_USER_NAME
       git config user.email $GIT_USER_EMAIL
+      # 手動で変更した場合はmerge時messageに[tag release]をつける
       commitmessage=$(git log --pretty=%B -n 1)
       if [[ $commitmessage = *"[tag release]"* ]]; then
-        git tag "v0.1.2"
-        git push origin "v0.1.2"
+        NEW_TAG=v$(grep -e V version.rb | tr -d 'VERSION= "')
+        git tag $NEW_TAG
+        git push origin $NEW_TAG
       else
-        git commit --allow-empty -m "[tag release]"
-        git push -u origin master
+        OLD_TAG=$(grep -e V version.rb | tr -d 'VERSION= "')
+        NEW_TAG="${OLD_TAG%.*}"
+        NEW_TAG+=".$((${OLD_TAG##*.} + 1))"
+        ALL_TEXT=$(sed s/$OLD_TAG/$NEW_TAG/ version.rb)
+        echo $ALL_TEXT
+        # echo $ALL_TEXT > version.rb
+        # git add version.rb
+        # git commit -m "[tag release] version up"
+        # git push origin master
       fi
 
 setting-build: &setting-build
