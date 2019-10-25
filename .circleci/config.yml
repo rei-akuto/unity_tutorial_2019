@@ -5,9 +5,6 @@ defaults: &defaults
 deps-images: &deps-images
   docker:
     - image: 'circleci/ruby:2.6.0-node-browsers'
-      environment:
-        TZ: Asia/Tokyo
-    
 
 checkout_cache_key: &checkout_cache_key v1-repo-{{ .Environment.CIRCLE_SHA1 }}
 restore_checkout_cache: &restore_checkout_cache
@@ -60,4 +57,5 @@ workflows:
     jobs:
       - build-setting
       - tag-release:
+          requires:
             - build-setting
