@@ -20,7 +20,8 @@ tag-setting: &tag-setting
       # NEW_TAG=v${VERSION}
       # echo $NEW_TAG
       # 環境変数として設定する必要あり
-      NEW_TAG=v0.1.0
+      NEW_TAG=v0.1.1
+      echo ${CIRCLE_TAG}
       git config user.name $GIT_USER_NAME
       git config user.email $GIT_USER_EMAIL
       git tag $NEW_TAG
@@ -32,7 +33,7 @@ setting-build: &setting-build
     - save_cache:
         key: *checkout_cache_key
         paths: *working_directory
-
+    - run: echo ${CIRCLE_TAG}
 release-tag: &release-tag
   steps:
     - attach_workspace:
