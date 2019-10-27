@@ -28,7 +28,7 @@ tag-setting: &tag-setting
         NEW_TAG="${OLD_TAG%.*}"
         NEW_TAG+=".$((${OLD_TAG##*.} + 1))"
         ALL_TEXT=$(sed s/$OLD_TAG/$NEW_TAG/ version.rb)
-        echo -e "$ALL_TEXT"
+        echo "$ALL_TEXT"
         # echo $ALL_TEXT > version.rb
         # git add version.rb
         # git commit -m "[tag release] version up"
